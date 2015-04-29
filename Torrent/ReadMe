@@ -1,0 +1,170 @@
+Ομάδα:
+Γολεμάτης Βασίλειος    1115 2005 00026
+Σωτήρη    Λεντιόν      1115 2005 00116
+
+				                         System Programming 
+                                                     3η Προγραμματιστική Εργασία
+                               			         BitTorrent Client 
+
+A. Μεταγλώττιση/Εκτέλεση προγράμματος - Τεχνικές Λεπτομέρειες
+
+-> Μεταγλώττιση-Εκτέλεση
+   Έχει υλοποιηθεί Makefile για την μεταγλώττιση του προγράμματος και για το καθαρισμό των αντικειμενικών αρχείων (εκτός των δοθέντων βιβλιοθηκών MD5_Lib.o BMP_Lib.o) και του εκτελέσιμου:
+   >  make   				  (Μεταγλώττιση)
+   >  ./peer <configuration file>         (Εκτέλεση Προγράμματος)
+   >  make clean                          (Καθαρισμός αντικειμενικών αρχείων και εκτελέσιμου)
+-> Αρχεία που περιέχονται στο tar 
+   
+   - Main Συνάρτηση - Main Thread - Ορισμός δομών/mutex για τον peer: 
+     main.c      thread_lib.h  		
+  
+   - Συναρτήσεις για το main thread καθώς και συναρτήσεις για Parsing που χρησιμοποιούνται απ' όλα τα threads:
+     main_thread.c   main_thread_lib.h  
+
+   - Συναρτήσεις διαχείρησης συνδεδεμένης λίστας ομοτίμων (Peerlist):        		  
+     PList.c                 
+		  
+   - Heart Bit - Peer list thread συνάρτηση:
+     hb_pl_thread.c  hb_pl_thread_lib.h   
+
+   - Detached server thread που εξυπηρετεί chunk requests:
+     server_thread.c server_thread_lib.h   
+
+   - Client thread υπεύθυνο για την λειτουργία του leeching (μόνο για leecher peers):
+     client_thread.c client_thread_lib.h   
+  
+   - Βιβλιοθήκες MD5, Bitmap (Δοθέντα αρχεία):
+     MD5_Lib.o MD5_Lib.h  BMP_Lib.h  BMP_Lib.o
+
+   - Ενδεικτικά Configuration files για 1 seeder και 2 leechers (o tracker που συνδέονται πρέπει να στηθεί στο linux17)
+     Επίσης άδειοι φάκελοι εργασίας (working directories) 
+     seed.conf  leech.conf  leech1.conf
+     Seeder     Leecher     Leecher1
+
+B. Παράδειγμα εκτέλεσης προγράμματος για 1 seeder - 2 leecher. Δημιουργία Σμήνους διαμοιρασμού του αρχείου SP-S10-Prj3.pdf
+
+- Σενάριο Εκτέλεσης:
+  - Οι 2 Leechers εξυπηρετούνται απ' τον Seeder
+  - O Seeder τερματίζεται χειροκίνητα κατα τη διάρκεια του seeding
+  - Oι 2 Leechers αναζητούν κομμάτια πραγματοποιόντας συνδέσεις μεταξύ τους
+  - Ο Seeder εισχωρεί εκ νέου στο σμήνος
+  - Οι 2 Leechers συνεχίζουν το leeching απ' τον seeder
+
+-> Tracker 
+
+linux17:/home/users/std05026/Syspro/BitTorrent>./tracker 3456
+Tracker: P2P Tracker
+Listening on port 3456
+...
+
+-> Seeder
+
+linux03:/home/users/std05026/Syspro/Torrent>./peer seed.conf
+
+Listening on port: 3478
+Seeding file: Seeder/SP-S10-Prj3.pdf
+File md5-sum: bb99934e8641c3546f39f5c812bd86bb
+File size in bytes: 185436
+Chunk Size: 1024
+Number of Chunks: 182
+
+Accepted connection from: linux04.di.uoa.gr (195.134.65.75)
+Accepted connection from: linux05.di.uoa.gr (195.134.65.76)
+... 
+Accepted connection from: linux04.di.uoa.gr (195.134.65.75)
+Accepted connection from: linux05.di.uoa.gr (195.134.65.76)
+
+Cleaning resources...
+Terminating peer client...
+
+-> Leecher 
+
+linux04:/home/users/std05026/Syspro/Torrent>./peer leech.conf
+
+
+Listening on port: 3479
+Leeching file: Leecher/SP-S10-Prj3.pdf
+File md5-sum: bb99934e8641c3546f39f5c812bd86bb
+Leeching 10% complete
+Leeching 20% complete
+Leeching 30% complete
+Leeching 40% complete
+Leeching 50% complete
+Leeching 60% complete
+Leeching 70% complete
+Accepted connection from: linux05.di.uoa.gr (195.134.65.76)
+Accepted connection from: linux05.di.uoa.gr (195.134.65.76)
+...
+Accepted connection from: linux05.di.uoa.gr (195.134.65.76)
+Accepted connection from: linux05.di.uoa.gr (195.134.65.76)
+Leeching 80% complete
+Accepted connection from: linux05.di.uoa.gr (195.134.65.76)
+Accepted connection from: linux05.di.uoa.gr (195.134.65.76)
+...
+Accepted connection from: linux05.di.uoa.gr (195.134.65.76)
+Accepted connection from: linux05.di.uoa.gr (195.134.65.76)
+Leeching 90% complete
+Accepted connection from: linux05.di.uoa.gr (195.134.65.76)
+Accepted connection from: linux05.di.uoa.gr (195.134.65.76)
+...
+Accepted connection from: linux05.di.uoa.gr (195.134.65.76)
+Accepted connection from: linux05.di.uoa.gr (195.134.65.76)
+Leeching 100% complete
+
+Cleaning resources...
+Terminating peer client...
+
+
+-> Leecher 1
+
+linux05:/home/users/std05026/Syspro/Torrent>./peer leech1.conf
+
+Listening on port: 3480
+Leeching file: Leecher1/SP-S10-Prj3.pdf
+File md5-sum: bb99934e8641c3546f39f5c812bd86bb
+Leeching 10% complete
+Leeching 20% complete
+Leeching 30% complete
+Leeching 40% complete
+Leeching 50% complete
+Leeching 60% complete
+Leeching 70% complete
+Accepted connection from: linux04.di.uoa.gr (195.134.65.75)
+Accepted connection from: linux04.di.uoa.gr (195.134.65.75)
+Accepted connection from: linux04.di.uoa.gr (195.134.65.75)
+...
+Accepted connection from: linux04.di.uoa.gr (195.134.65.75)
+Accepted connection from: linux04.di.uoa.gr (195.134.65.75)
+Accepted connection from: linux04.di.uoa.gr (195.134.65.75)
+Leeching 80% complete
+Accepted connection from: linux04.di.uoa.gr (195.134.65.75)
+Accepted connection from: linux04.di.uoa.gr (195.134.65.75)
+...
+Accepted connection from: linux04.di.uoa.gr (195.134.65.75)
+Accepted connection from: linux04.di.uoa.gr (195.134.65.75)
+Leeching 90% complete
+Accepted connection from: linux04.di.uoa.gr (195.134.65.75)
+Accepted connection from: linux04.di.uoa.gr (195.134.65.75)
+...
+Accepted connection from: linux04.di.uoa.gr (195.134.65.75)
+Accepted connection from: linux04.di.uoa.gr (195.134.65.75)
+Leeching 100% complete
+
+Cleaning resources...
+Terminating peer client...
+
+Γ. Συμπληρωματικά Σχόλια
+
+- Eπίσης ενημερώνονται τα logfiles (seedLog.txt , leechLog.txt) στο working directory κάθε peer όπως ορίζει η εκφώνηση.
+- Γενικά τηρείται ο κανόνας:
+  - Ο Leecher ξεκινώντας απ' τον πρώτο peer της λίστας αναζητά ένα chunk.
+  - Αν αποτύχει κάποια σύνδεση με κάποιον peer της λίστας, η δεν λάβει σωστά το chunk συνεχίζει στον επόμενο της λίστας.
+  - Αν εξαντλήσει όλους τους peers της λίστας, τότε αναζητά ένα νέο chunk, ξεκινώντας απ' την αρχή της λίστας.
+- Η άσκηση έχει δοκιμαστεί και για αρχείο mp3 περίπου 5Mb με επιτυχία.
+   
+
+
+
+ 
+
+
